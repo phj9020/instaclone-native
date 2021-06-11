@@ -20,4 +20,4 @@ export const darkTheme = StyleSheet.create({
     accent: {
         backgroundColor: '#c395fe',
     }
-})
+});

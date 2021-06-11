@@ -11,7 +11,7 @@ import { darkTheme, lightTheme } from './styles';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [isDark, setIsDark] = useState();
+  const [isDark, setIsDark] = useState(false);
   const onFinish = () => setLoading(false);
 
   const preload = () => {
@@ -40,16 +40,16 @@ export default function App() {
     }
     
   });
-    
+  
   console.log(isDark);
   return ( 
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <AppearanceProvider>
-        <NavigationContainer>
-          <LoggedOutNavigator /> 
-        </NavigationContainer>
-      </AppearanceProvider>
-    </ThemeProvider>
+      <ThemeProvider theme={isDark? darkTheme : lightTheme}>
+        <AppearanceProvider>
+          <NavigationContainer>
+            <LoggedOutNavigator /> 
+          </NavigationContainer>
+        </AppearanceProvider>
+      </ThemeProvider>
   )
 }
 

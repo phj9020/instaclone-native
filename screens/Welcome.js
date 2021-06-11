@@ -1,38 +1,23 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
+import AuthButton from '../components/auth/AuthButton';
+import AuthLayout from '../components/auth/AuthLayout';
 
-const Container = styled.View`
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    background-color: ${props => props.theme.colors.backgroundColor};
-    color: ${props => props.theme.colors.color};
-`
 
-const Logo = styled.Image`
-    max-width: 50%;
-    height: 100px;
-    margin-bottom: 50px;
-`
 
-const CreateAccount = styled.View`
-    background-color: ${props => props.theme.accent.backgroundColor};
-    padding: 7px 15px;
+const Login = styled.TouchableOpacity`
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid ${props => props.theme.accent.backgroundColor};
     border-radius: 5px;
-`
-
-const CreateAccountText = styled.Text`
-    color: ${props => props.theme.colors.color};
-    font-weight: 600;
-    font-size: 16px;
+    margin-top: 20px;
 `
 
 const LoginLink = styled.Text`
     color: ${props => props.theme.accent.backgroundColor};
-    margin-top: 20px;
     font-weight: 600;
     font-size: 16px;
+    text-align: center;
 `
 
 function Welcome({navigation}) {
@@ -43,17 +28,12 @@ function Welcome({navigation}) {
         navigation.navigate("Login")
     }
     return (
-        <Container> 
-            <Logo resizeMode="contain" source={require("../assets/logo_white.png")} />
-            <TouchableOpacity onPress={goToCreateAccount}>
-                <CreateAccount>
-                    <CreateAccountText>Create Account</CreateAccountText>
-                </CreateAccount>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={goToLogIn}>
+        <AuthLayout>
+            <AuthButton text="Create New Account" disabled={false} onPress={goToCreateAccount}/>
+            <Login onPress={goToLogIn}>
                 <LoginLink>Log in</LoginLink>
-            </TouchableOpacity>
-        </Container>
+            </Login>
+        </AuthLayout>
     )
 }
 

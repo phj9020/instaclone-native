@@ -12,7 +12,11 @@ function LoggedOutNavigator() {
                 <Stack.Screen name="Welcome" options={{headerShown:false}} 
                 component={Welcome}  />
                 <Stack.Screen name="Login" component={Login}  />
-                <Stack.Screen name="CreateAccount" component={CreateAccount} />
+                <Stack.Screen name="CreateAccount" 
+                options={{
+                    headerTitle: false, 
+                    headerTransparent: true, 
+                    headerTintColor: "white"}} component={CreateAccount} />
             </Stack.Navigator>
     )
 }
