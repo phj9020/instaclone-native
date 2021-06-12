@@ -14,7 +14,7 @@ function LoggedOutNavigator() {
                 <Stack.Screen name="Login" component={Login}  />
                 <Stack.Screen name="CreateAccount" 
                 options={{
-                    headerTitle: false, 
+                    headerTitle: true, 
                     headerTransparent: true, 
                     headerTintColor: "white"}} component={CreateAccount} />
             </Stack.Navigator>
