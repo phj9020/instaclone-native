@@ -8,8 +8,8 @@ const Container = styled.View`
     flex: 1;
     align-items: center;
     justify-content: center;
-    background-color: ${props => props.theme.colors.backgroundColor};
-    color: ${props => props.theme.colors.color};
+    background-color: ${Platform.OS === "web" ? "black" : props => props.theme.colors.backgroundColor};
+    color: ${Platform.OS === "web" ? "white" : props => props.theme.colors.color};
     padding: 0px 40px;
 `
 

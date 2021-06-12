@@ -72,7 +72,7 @@ function CreateAccount({navigation}) {
                 onChangeText={(text) => setValue("password", text)}
                 lastOne={true}
                 />
-                <AuthButton text="Create Account" disabled={false} onPress={handleSubmit(onValid)} />
+                <AuthButton text="Create Account" disabled={true} onPress={handleSubmit(onValid)} />
         </AuthLayout>
     )
 }
