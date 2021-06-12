@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 const Button = styled.TouchableOpacity`
     width: 100%;
     background-color: ${props => props.theme.accent.backgroundColor};
-    padding: 13px 15px;
+    padding: 15px 15px;
     border-radius: 5px;
     opacity: ${props => props.disabled ? "0.5" : "1"};
 `
