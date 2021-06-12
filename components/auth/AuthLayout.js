@@ -25,7 +25,7 @@ function AuthLayout({children}) {
         Keyboard.dismiss();
     }
     return (
-        <TouchableWithoutFeedback style={{flex: 1}} onPress={dismissKeyboard}>
+        <TouchableWithoutFeedback style={{flex: 1}} onPress={dismissKeyboard} disabled={Platform.OS === "web"}>
             <Container>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
