@@ -17,8 +17,14 @@ const LOGIN_MUTATION = gql`
     }
 `;
 
-function Login() {
-    const { register, handleSubmit, setValue, watch } = useForm();
+function Login({route}) {
+    console.log(route)
+    const { register, handleSubmit, setValue, watch } = useForm({
+        defaultValues : {
+            username: route?.params?.username,
+            password: route?.params?.password
+        }
+    });
     const passwordRef = useRef();
     const [error, setError] = useState();
     
@@ -64,6 +70,7 @@ function Login() {
         <AuthLayout>
             {error ? <ErrorText>{error}</ErrorText> : null}
             <TextInput 
+                value={watch("username")}
                 placeholder="Username" 
                 placeholderTextColor="rgba(255,255,255, 0.8)" 
                 returnKeyType="next"
@@ -73,6 +80,7 @@ function Login() {
                 onFocus={clearLoginError}
             />
             <TextInput 
+                value={watch("password")}
                 ref={passwordRef}
                 placeholder="Password" 
                 placeholderTextColor="rgba(255,255,255, 0.8)" 

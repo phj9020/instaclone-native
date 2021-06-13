@@ -1,11 +1,51 @@
-import React,{useRef, useEffect} from 'react';
+import React,{useRef, useEffect, useState} from 'react';
 import AuthButton from '../components/auth/AuthButton';
 import AuthLayout from '../components/auth/AuthLayout';
 import {TextInput} from '../components/auth/AuthShared';
 import { useForm } from "react-hook-form";
+import ErrorText from '../components/auth/ErrorText';
+import { gql, useMutation } from "@apollo/client";
+
+const CREATE_ACCOUNT_MUTATION = gql`
+    mutation createAccount(
+        $firstName: String!, 
+        $lastName: String, 
+        $username: String!,
+        $email: String!,
+        $password: String!,
+        ) {
+            createAccount(
+                firstName:$firstName, 
+                lastName:$lastName, 
+                username:$username, 
+                email:$email, 
+                password:$password) {
+                    ok
+                    error
+                    id
+                }
+        }
+`
 
 function CreateAccount({navigation}) {
-    const {register, handleSubmit, setValue} = useForm();
+    const {register, handleSubmit, setValue, getValues, watch} = useForm();
+    const [error, setError] = useState();
+    const [createAccount, {loading}] = useMutation(CREATE_ACCOUNT_MUTATION, {
+        onCompleted: (data) => {
+            const {createAccount :{ok, error}} = data;
+            if(!ok) {
+                setError(error);
+            } else {
+                const {username, password} = getValues();
+                // send user to login page
+                navigation.navigate("Login", {
+                    username: username,
+                    password: password,
+                });
+
+            }
+        }
+    })
     const lastNameRef = useRef();
     const usernameRef = useRef();
     const emailRef = useRef();
@@ -17,34 +57,40 @@ function CreateAccount({navigation}) {
     };
 
     const onValid = (data) => {
-        console.log(data)
+        if(!loading) {
+            createAccount({
+                variables: {
+                    ...data
+                }
+            })
+        }
     };
 
     useEffect(() => {
         register("firstName", {
-            required: "Firstname is required",
+            required: true,
         });
         register("lastName");
         register("username", {
-            required: "username is required",
+            required: true,
             minLength: {
                 value: 6,
-                message: "username should be longer than 6 characters"
             },
         });
         register("email", {
-            required: "email is required",
+            required: true,
         });
         register("password", {
-            required: "password is required",
+            required: true,
             minLength: {
                 value: 3,
-                message: "Password should be longer than 3 characters"
             },
         });
-    }, [register])
+    }, [register]);
+
     return (
         <AuthLayout>
+                {error ? <ErrorText>{error}</ErrorText> : null }
                 <TextInput 
                 placeholder="First Name" 
                 placeholderTextColor="rgba(255,255,255, 0.8)"
@@ -88,7 +134,10 @@ function CreateAccount({navigation}) {
                 onChangeText={(text) => setValue("password", text)}
                 lastOne={true}
                 />
-                <AuthButton text="Create Account" disabled={true}  onPress={handleSubmit(onValid)} />
+                <AuthButton text="Create Account" 
+                    disabled={!watch("firstName") || !watch("username") || !watch("email") || !watch("password")}  
+                    loading={loading}
+                    onPress={handleSubmit(onValid)} />
         </AuthLayout>
     )
 }
