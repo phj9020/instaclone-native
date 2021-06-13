@@ -8,8 +8,14 @@ import LoggedOutNavigator from './navigators/LoggedOutNavigator';
 import { ThemeProvider } from 'styled-components/native';
 import {AppearanceProvider, Appearance } from 'react-native-appearance';
 import { darkTheme, lightTheme } from './styles';
+import { ApolloProvider, useReactiveVar } from "@apollo/client";
+import client from './apollo';
+import {isLoggedInVar} from './apollo';
+import LoggedInNavigator from './navigators/LoggedInNavigator';
 
 export default function App() {
+  // hook should be render at top 
+  const isLoggedIn = useReactiveVar(isLoggedInVar);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(false);
   const onFinish = () => setLoading(false);
@@ -43,13 +49,15 @@ export default function App() {
   
   console.log(isDark);
   return ( 
+    <ApolloProvider client={client}>
       <ThemeProvider theme={isDark? darkTheme : lightTheme}>
         <AppearanceProvider>
           <NavigationContainer>
-            <LoggedOutNavigator /> 
+            {isLoggedIn ? <LoggedInNavigator /> : <LoggedOutNavigator /> }
           </NavigationContainer>
         </AppearanceProvider>
       </ThemeProvider>
+    </ApolloProvider>
   )
 }
 

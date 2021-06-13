@@ -21,11 +21,27 @@ function CreateAccount({navigation}) {
     };
 
     useEffect(() => {
-        register("firstName");
+        register("firstName", {
+            required: "Firstname is required",
+        });
         register("lastName");
-        register("username");
-        register("email");
-        register("password");
+        register("username", {
+            required: "username is required",
+            minLength: {
+                value: 6,
+                message: "username should be longer than 6 characters"
+            },
+        });
+        register("email", {
+            required: "email is required",
+        });
+        register("password", {
+            required: "password is required",
+            minLength: {
+                value: 3,
+                message: "Password should be longer than 3 characters"
+            },
+        });
     }, [register])
     return (
         <AuthLayout>
@@ -72,7 +88,7 @@ function CreateAccount({navigation}) {
                 onChangeText={(text) => setValue("password", text)}
                 lastOne={true}
                 />
-                <AuthButton text="Create Account" disabled={true} onPress={handleSubmit(onValid)} />
+                <AuthButton text="Create Account" disabled={true}  onPress={handleSubmit(onValid)} />
         </AuthLayout>
     )
 }
