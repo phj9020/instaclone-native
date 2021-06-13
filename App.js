@@ -9,9 +9,11 @@ import { ThemeProvider } from 'styled-components/native';
 import {AppearanceProvider, Appearance } from 'react-native-appearance';
 import { darkTheme, lightTheme } from './styles';
 import { ApolloProvider, useReactiveVar } from "@apollo/client";
-import client from './apollo';
+import client, { tokenVar } from './apollo';
 import {isLoggedInVar} from './apollo';
 import LoggedInNavigator from './navigators/LoggedInNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {TOKEN} from './apollo';
 
 export default function App() {
   // hook should be render at top 
@@ -19,17 +21,28 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(false);
   const onFinish = () => setLoading(false);
-
-  const preload = () => {
+  
+  const preloadAssets = () => {
     // font icons to load
     const fontsToLoad = [Ionicons.font];
     const fontPromise = fontsToLoad.map(font => Font.loadAsync(font));
-
+  
     // image assets to load
     const imagesToLoad = [require("./assets/logo_white.png"), "https://upload.wikimedia.org/wikipedia/commons/2/2a/Instagram_logo.svg"];
     const imagePromise = imagesToLoad.map(image => Asset.loadAsync(image));
-
+  
     return Promise.all([...fontPromise, ...imagePromise]);
+
+  };
+
+  const preload = async() => {
+    // used async to restore token from cache
+    const token = await AsyncStorage.getItem(TOKEN);
+    if(token) {
+      isLoggedInVar(true);
+      tokenVar(token);
+    }
+    return preloadAssets();
   };
 
   if(loading) {
