@@ -6,7 +6,7 @@ import Notification from '../screens/Notification';
 import {View} from 'react-native';
 import TabIcon from '../components/nav/TabIcon';
 import Me from '../screens/Me';
-import StackNavFactory from '../components/nav/StackNavFactory';
+import StackNavFactory from './StackNavFactory';
 
 const Tab = createBottomTabNavigator();
 

@@ -10,6 +10,7 @@ function LoggedOutNavigator() {
     return (
             <Stack.Navigator
                 screenOptions={{
+                    headerTitleAlign: 'center',
                     headerBackTitleVisible: false, 
                     headerTitle: false,
                     headerTransparent: true, 
