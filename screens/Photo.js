@@ -1,15 +1,15 @@
 import React from 'react';
 import { TouchableOpacity,Text, View } from 'react-native';
 
-function Search({navigation}) {
+function Photo({navigation}) {
     return (
         <View style={{backgroundColor: "black", flex: 1, alignItems: "center", justifyContent: "center"}}>
-            <Text style={{color: "white"}}>search</Text>
-            <TouchableOpacity onPress={()=> navigation.navigate("Photo")}>
-                <Text style={{color: "white"}} >go to Photo</Text>
+            <Text style={{color: "white"}}>i am photo</Text>
+            <TouchableOpacity onPress={()=> navigation.navigate("Profile")}>
+                <Text style={{color: "white"}} >go to Profile</Text>
             </TouchableOpacity>
         </View>
     )
 }
 
-export default Search
+export default Photo;
