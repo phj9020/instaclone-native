@@ -37,6 +37,7 @@ export default function App() {
 
   const preload = async() => {
     // used async to restore token from cache
+    // get token to reuse it 
     const token = await AsyncStorage.getItem(TOKEN);
     if(token) {
       isLoggedInVar(true);
