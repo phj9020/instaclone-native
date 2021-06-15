@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {useNavigation} from '@react-navigation/native';
 import {useWindowDimensions, Image} from 'react-native';
 import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const Container = styled.View`
     padding-bottom: 20px;
@@ -27,19 +28,34 @@ const Username = styled.Text`
 
 const File = styled.Image``
 
-const Actions = styled.View``
+const BottomContainer = styled.View`
+    padding: 0px 10px;
+    margin-top: 7px;
+`
 
-const Action = styled.TouchableOpacity``
+const Actions = styled.View`
+    flex-direction: row;
+    align-items: center;
+`
+
+const Action = styled.TouchableOpacity`
+    margin-right:10px;
+`
+
+const Icon = styled(Ionicons)`
+    color: ${props => props.colorIsLiked ? "#E1306C" : props.theme.icon.color};
+`
 
 const Likes = styled.Text`
-    margin: 5px 0px;
+    margin: 7px 0px;
+    font-weight: 600;
     color: ${props => props.theme.boxColor.color};
-    padding: 0px 10px;
+    
 `
 
 const Caption = styled.View`
     flex-direction: row;
-    padding: 0px 10px;
+    
 `
 
 const CaptionText = styled.Text`
@@ -74,17 +90,25 @@ function Photo({id, user, file, isLiked, likes, caption}) {
                 width,
                 height: imageHeight,
                 }} resizeMode="cover" source={{uri:file}} />
-            <Actions>
-                <Action />
-                <Action />
-            </Actions>
-            <Likes>{likes === 1 ? `${likes} like` : `${likes} likes`}</Likes>
-            <Caption>
-                <TouchableOpacity onPress={()=>navigation.navigate("Profile")}>
-                    <Username>{user.username}</Username>
+            <BottomContainer>
+                <Actions>
+                    <Action>
+                        <Icon name={isLiked ? "heart" : "heart-outline"} colorIsLiked={isLiked} size={22} />
+                    </Action>
+                    <Action onPress={()=>navigation.navigate("Comments")}>
+                        <Icon name="chatbubble-outline" size={22}/>
+                    </Action>
+                </Actions>
+                <TouchableOpacity onPress={()=> navigation.navigate("Likes")}>
+                    <Likes>{likes === 1 ? `${likes} like` : `${likes} likes`}</Likes>
                 </TouchableOpacity>
-                <CaptionText>{caption}</CaptionText>
-            </Caption>
+                <Caption>
+                    <TouchableOpacity onPress={()=>navigation.navigate("Profile")}>
+                        <Username>{user.username}</Username>
+                    </TouchableOpacity>
+                    <CaptionText>{caption}</CaptionText>
+                </Caption>
+            </BottomContainer>
         </Container>
     )
 }

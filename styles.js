@@ -12,6 +12,9 @@ export const lightTheme = StyleSheet.create({
     boxColor: {
         backgroundColor: 'white',
         color: 'black',
+    },
+    icon: {
+        color: "black"
     }
 });
 
@@ -27,5 +30,8 @@ export const darkTheme = StyleSheet.create({
     boxColor: {
         backgroundColor: 'black',
         color: "white",
+    },
+    icon: {
+        color: "white"
     }
 });
