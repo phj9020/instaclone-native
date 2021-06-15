@@ -1,8 +1,9 @@
 import React from 'react';
-import {Text, View, Button, TouchableOpacity, StatusBar} from 'react-native';
-import {logUserOut} from '../apollo';
+import { FlatList, Text, View } from 'react-native';
 import {gql, useQuery} from '@apollo/client';
 import {PHOTO_FRAGMENT, COMMENT_FRAGMENT} from '../fragments';
+import ScreenLayout from '../components/ScreenLayout';
+import Photo from '../components/Photo';
 
 const FEED_QUERY = gql`
     query seeFeed($page: Int!) {
@@ -26,20 +27,28 @@ const FEED_QUERY = gql`
 
 function Feed({navigation}) {
 
-    const {data} = useQuery(FEED_QUERY, {
+    const {data, loading} = useQuery(FEED_QUERY, {
         variables: {
             page: 1,
         }
     });
 
     console.log(data);
-    
+
+    const renderItem = ({ item }) => (
+        <Photo {...item} />
+    );
+
     return (
-        <View style={{backgroundColor: "black", flex: 1, alignItems: "center", justifyContent: "center"}}>
-            <StatusBar style="light" />
-            <Text style={{color: "white"}}>this is FEED home</Text>
-            <Button onPress={logUserOut} title="log out" />   
-        </View>
+        <ScreenLayout loading={loading}>
+            <FlatList 
+                style={{width: "100%"}}
+                showsVerticalScrollIndicator={false}
+                data={data?.seeFeed}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+            />
+        </ScreenLayout>
     )
 }
 

@@ -8,6 +8,10 @@ export const lightTheme = StyleSheet.create({
     },
     accent: {
         backgroundColor: '#0095f6',
+    },
+    boxColor: {
+        backgroundColor: 'white',
+        color: 'black',
     }
 });
 
@@ -19,5 +23,9 @@ export const darkTheme = StyleSheet.create({
     },
     accent: {
         backgroundColor: '#c395fe',
+    },
+    boxColor: {
+        backgroundColor: 'black',
+        color: "white",
     }
 });

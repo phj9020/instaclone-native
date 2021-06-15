@@ -27,7 +27,7 @@ function StackNavFactory({screenName}) {
             }}
         >
             {screenName === "Feed" ? <Stack.Screen name={"Feed"} component={Feed} options={{
-                headerTitle: () => <Image style={{maxHeight: 50}} resizeMode="contain" source={require("../assets/logo_white.png")} />
+                headerTitle: () => <Image style={{maxHeight: 40}} resizeMode="contain" source={require("../assets/logo_white.png")} />
             }} /> : null}
             {screenName === "Search" ? <Stack.Screen name={"Search"} component={Search}/> : null}
             {screenName === "Notification" ? <Stack.Screen name={"Notification"} component={Notification}/> : null}
