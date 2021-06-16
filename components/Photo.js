@@ -5,6 +5,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useWindowDimensions, Image} from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import {gql, useMutation} from '@apollo/client';
 
 const Container = styled.View`
     padding-bottom: 20px;
@@ -63,6 +64,15 @@ const CaptionText = styled.Text`
     margin-left: 10px;
 `
 
+const TOGGLE_LIKE_MUTATION = gql`
+    mutation toggleLike($id: Int!) {
+        toggleLike(id: $id) {
+            ok
+            error
+        }
+    }
+`
+
 function Photo({id, user, file, isLiked, likes, caption}) {
     const navigation = useNavigation();
     const {width, height} = useWindowDimensions();
@@ -77,6 +87,34 @@ function Photo({id, user, file, isLiked, likes, caption}) {
         });
     }, [file]);
 
+    const updateToggleLike = (cache, result) => {
+        const { data : { toggleLike : {ok}}} = result;
+        if(ok) {
+            const fragmentId = `Photo:${id}`;
+
+            cache.modify({
+                id: fragmentId,
+                fields : {
+                    isLiked(prev) {
+                        return !prev
+                    },
+                    likes(prev) {
+                        if(isLiked) {
+                            return prev - 1;
+                        } 
+                        return prev + 1; 
+                    }
+                }
+            })
+        };
+    };
+
+    const [toggleLike] = useMutation(TOGGLE_LIKE_MUTATION, {
+        variables: {
+            id: id,
+        },
+        update: updateToggleLike,
+    })
 
     return (
         <Container>
@@ -92,7 +130,7 @@ function Photo({id, user, file, isLiked, likes, caption}) {
                 }} resizeMode="cover" source={{uri:file}} />
             <BottomContainer>
                 <Actions>
-                    <Action>
+                    <Action onPress={toggleLike}>
                         <Icon name={isLiked ? "heart" : "heart-outline"} colorIsLiked={isLiked} size={22} />
                     </Action>
                     <Action onPress={()=>navigation.navigate("Comments")}>

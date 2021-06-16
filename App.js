@@ -9,11 +9,12 @@ import { ThemeProvider } from 'styled-components/native';
 import {AppearanceProvider, Appearance } from 'react-native-appearance';
 import { darkTheme, lightTheme } from './styles';
 import { ApolloProvider, useReactiveVar } from "@apollo/client";
-import client, { tokenVar } from './apollo';
+import client, { tokenVar, cache } from './apollo';
 import {isLoggedInVar} from './apollo';
 import LoggedInNavigator from './navigators/LoggedInNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TOKEN} from './apollo';
+import { persistCache, AsyncStorageWrapper } from 'apollo3-cache-persist';
 
 export default function App() {
   // hook should be render at top 
@@ -32,7 +33,6 @@ export default function App() {
     const imagePromise = imagesToLoad.map(image => Asset.loadAsync(image));
   
     return Promise.all([...fontPromise, ...imagePromise]);
-
   };
 
   const preload = async() => {
@@ -43,6 +43,10 @@ export default function App() {
       isLoggedInVar(true);
       tokenVar(token);
     }
+    await persistCache({
+      cache,
+      storage: new AsyncStorageWrapper(AsyncStorage),
+    });
     return preloadAssets();
   };
 

@@ -35,28 +35,30 @@ const authLink = setContext((_, { headers }) => {
     }
 });
 
-const client = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache({
-        typePolicies: {
-            Query : {
-                fields: {
-                    // Method 1 : offsetLimitPagination
-                    // seeFeed: offsetLimitPagination()
-                    
-                    // Method 2 : Configure keyArgs and merge
-                    // we dont want apollo to differenciate between query based on argument
-                    seeFeed :{
-                        keyArgs: false,
-                        // merge data
-                        merge(existing = [], incoming = []) {
-                            return [...existing, ...incoming];
-                        },
-                    }
+export const cache = new InMemoryCache({
+    typePolicies: {
+        Query : {
+            fields: {
+                // Method 1 : offsetLimitPagination
+                // seeFeed: offsetLimitPagination()
+                
+                // Method 2 : Configure keyArgs and merge
+                // we dont want apollo to differenciate between query based on argument
+                seeFeed :{
+                    keyArgs: false,
+                    // merge data
+                    merge(existing = [], incoming = []) {
+                        return [...existing, ...incoming];
+                    },
                 }
             }
         }
-    }),
+    }
+});
+
+const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: cache,
 });
 
 export default client;
