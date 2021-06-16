@@ -54,7 +54,7 @@ function Feed({navigation}) {
                 showsVerticalScrollIndicator={false}
                 data={data?.seeFeed}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => "" + item.id}
             />
         </ScreenLayout>
     )

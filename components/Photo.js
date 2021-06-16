@@ -71,7 +71,7 @@ function Photo({id, user, file, isLiked, likes, caption}) {
     useEffect(()=> {
         // get each image size using getSize
         Image.getSize(file, (width, height) => {
-            console.log(height);
+
             // set state 
             setImageHeight(height / 3);
         });
@@ -119,7 +119,7 @@ Photo.propTypes = {
         avatar: PropTypes.string,
         username: PropTypes.string.isRequired
     }),
-    caption: PropTypes.string,
+    caption: PropTypes.string.isRequired,
     file: PropTypes.string.isRequired,
     isLiked: PropTypes.bool.isRequired,
     likes: PropTypes.number,

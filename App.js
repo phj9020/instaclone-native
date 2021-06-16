@@ -55,7 +55,7 @@ export default function App() {
 
     if(colorScheme === 'light') {
       setIsDark(false);
-    } else {
+    } else if(colorScheme === 'dark'){
       setIsDark(true);
     }
     
