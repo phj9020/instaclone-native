@@ -1,42 +1,29 @@
-import React, {useState} from 'react';
-import {Text, View, ScrollView, RefreshControl} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {ScrollView, RefreshControl} from 'react-native';
 import {gql, useQuery} from '@apollo/client';
 import ScreenLayout from '../components/ScreenLayout';
 import {PHOTO_FRAGMENT} from '../fragments';
 import MyProfile from '../components/MyProfile';
-
-const ME_QUERY = gql`
-    query me {
-        me {
-            id
-            firstName
-            lastName
-            username
-            bio
-            avatar
-            photos(page: 1) {
-                ...PhotoFragment
-            }
-            isMe
-            totalFollowings
-            totalFollowers
-        }
-    }
-    ${PHOTO_FRAGMENT}
-`
+import useMe from '../hooks/useMe';
 
 
-function Me() {
+
+
+function Me({navigation}) {
+    const {data, loading, refetch } = useMe();
     const [refresh, setRefresh] = useState(false);
-    const { data, loading, refetch } = useQuery(ME_QUERY);
-
-    console.log(data);
-
+    
     const refreshToRefetch = async()=> {
         setRefresh(true);
         await refetch();
         setRefresh(false);
-    }
+    };
+    
+    useEffect(()=>{
+        navigation.setOptions({
+                title: `My Profile`,
+        })
+    },[])
 
     return (
         <ScreenLayout loading={loading}>
