@@ -71,11 +71,12 @@ const PhotoContainer = styled.View`
     flex-wrap: wrap;
 `
 const PhotoTouch = styled.TouchableOpacity`
-    width:33.3%;
+    width:33.1%;
+    margin:0.1%;
 `
 const PhotoFeed = styled.Image`
     width:100%;
-    height:150px;
+    height:140px;
 `
 
 function MyProfile({ 

@@ -114,11 +114,18 @@ function Photo({id, user, file, isLiked, likes, caption}) {
             id: id,
         },
         update: updateToggleLike,
-    })
+    });
+
+    const goToProfile = ()=> {
+        return navigation.navigate("Profile", {
+            username: user.username,
+            id: user.id,
+        })
+    }
 
     return (
         <Container>
-            <Header onPress={()=> navigation.navigate("Profile")}>
+            <Header onPress={goToProfile}>
                 <UserAvatar resizeMode="cover" 
                     source={{uri: user.avatar}}
                     />
@@ -137,11 +144,11 @@ function Photo({id, user, file, isLiked, likes, caption}) {
                         <Icon name="chatbubble-outline" size={22}/>
                     </Action>
                 </Actions>
-                <TouchableOpacity onPress={()=> navigation.navigate("Likes")}>
+                <TouchableOpacity onPress={()=> navigation.navigate("Likes", {photoId: id})}>
                     <Likes>{likes === 1 ? `${likes} like` : `${likes} likes`}</Likes>
                 </TouchableOpacity>
                 <Caption>
-                    <TouchableOpacity onPress={()=>navigation.navigate("Profile")}>
+                    <TouchableOpacity onPress={goToProfile}>
                         <Username>{user.username}</Username>
                     </TouchableOpacity>
                     <CaptionText>{caption}</CaptionText>
