@@ -120,7 +120,7 @@ function MyProfile({
             </ProfileBioContainer>
             <PhotoContainer>
                 {photos?.map(feed => 
-                    <PhotoTouch key={feed.id} onPress={()=> navigation.navigate("Photo")}>
+                    <PhotoTouch key={feed.id} onPress={()=> navigation.navigate("Photo", {photoId : feed.id})}>
                         <PhotoFeed key={feed.id} resizeMode="cover" source={{uri: feed.file}} />
                     </PhotoTouch>
                 )}

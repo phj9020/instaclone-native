@@ -52,13 +52,14 @@ const SEARCH_PHOTO_QUERY = gql`
 
 function Search({navigation}) {
     const [refresh, setRefresh] = useState(false);
-    const {setValue, register, handleSubmit} = useForm();
+    const {setValue, register, handleSubmit, getValues} = useForm();
     const {width, height} = useWindowDimensions();
     const numberOfColumns = 3;
     // useLazyQuery for delay, which returns mutation type 
     const [startQueryFn, {loading, data, called, refetch, fetchMore}]= useLazyQuery(SEARCH_PHOTO_QUERY);
 
     console.log(data);
+    const {keyword} = getValues();
 
     const onValid = (data)=>{
         startQueryFn({
@@ -67,7 +68,7 @@ function Search({navigation}) {
                 offset:0
             }
         });
-    }
+    };
 
     const SearchBox = () => (
         <Input 
@@ -109,6 +110,7 @@ function Search({navigation}) {
             </Touch>
     )
     
+    console.log(data?.searchPhoto?.length);
 
     return (
         <DismissKeyboard>
@@ -135,10 +137,11 @@ function Search({navigation}) {
                                 <MessageText>Could Not Find Anything</MessageText>
                             </MessageContainer>
                         ) : 
-                        <FlatList 
+                        (<FlatList 
                             onEndReachedThreshold={0.1}
                             onEndReached={()=> fetchMore({ 
                                 variables: {
+                                    keyword: keyword,
                                     offset: data?.searchPhoto?.length,
                                 }
                             })}
@@ -148,7 +151,7 @@ function Search({navigation}) {
                             data={data?.searchPhoto} 
                             keyExtractor={item => "" + item.id}
                             renderItem={renderItem}
-                        /> 
+                        /> )
                     ) : null
                 }
             </SearchTabContainer>

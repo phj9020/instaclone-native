@@ -50,7 +50,8 @@ export const cache = new InMemoryCache({
                     merge(existing = [], incoming = []) {
                         return [...existing, ...incoming];
                     },
-                }
+                },
+                searchPhoto: offsetLimitPagination(),
             }
         }
     }
