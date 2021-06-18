@@ -1,7 +1,9 @@
 import React from 'react';
 import { TouchableOpacity,Text, View } from 'react-native';
 
-function Photo({navigation}) {
+function Photo({route, navigation}) {
+    const { params : {photoId}} = route;
+    console.log("photoid", photoId)
     return (
         <View style={{backgroundColor: "black", flex: 1, alignItems: "center", justifyContent: "center"}}>
             <Text style={{color: "white"}}>i am photo</Text>
