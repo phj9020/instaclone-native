@@ -1,8 +1,7 @@
 import React from 'react';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 import styled from 'styled-components/native';
-import { KeyboardAvoidingView } from 'react-native';
-import { Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 const Container = styled.View`
     flex: 1;

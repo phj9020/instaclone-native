@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
-import { TouchableOpacity, Image, ActivityIndicator, useWindowDimensions, FlatList } from 'react-native';
+import { ActivityIndicator, useWindowDimensions, FlatList } from 'react-native';
 import styled from 'styled-components/native';
 import DismissKeyboard from '../components/DismissKeyboard';
 import {gql, useLazyQuery} from '@apollo/client';

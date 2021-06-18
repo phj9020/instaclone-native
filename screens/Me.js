@@ -14,7 +14,7 @@ const ME_QUERY = gql`
             username
             bio
             avatar
-            photos(page: 1) {
+            photos {
                 ...PhotoFragment
             }
             isMe

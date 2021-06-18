@@ -1,10 +1,20 @@
-import React, {useEffect} from 'react';
-import {Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Text, View, ScrollView, RefreshControl} from 'react-native';
+import MyProfile from '../components/MyProfile';
+import ScreenLayout from '../components/ScreenLayout';
+import useMe from '../hooks/useMe';
 
 
 function Profile({navigation, route}) {
+    const {data : {me : {username: myUsername}}} = useMe();
     const {id, username} = route?.params;
-    console.log(id, username);
+    const [refresh, setRefresh] = useState(false);
+
+    const refreshToRefetch = async()=> {
+        setRefresh(true);
+        await refetch();
+        setRefresh(false);
+    };
 
     useEffect(() => {
         if(username) {
@@ -14,9 +24,25 @@ function Profile({navigation, route}) {
         }
     },[])
     return (
-        <View style={{backgroundColor: "black", flex: 1, alignItems: "center", justifyContent: "center"}}>
-            <Text style={{color: "white"}}>Someone's Profile</Text>
-        </View>
+        <ScreenLayout loading={false}>
+            <ScrollView 
+                style={{width: "100%"}}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refresh}
+                        onRefresh={refreshToRefetch}
+                    />
+                }
+            >
+
+                {/* 
+                    To Do;
+                    if isMe render MyProfile else see Others Profile using seeProfile 
+                    
+                */}
+
+            </ScrollView>
+        </ScreenLayout>
     )
 }
 

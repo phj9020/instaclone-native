@@ -48,19 +48,35 @@ const Icon = styled(Ionicons)`
 `
 
 const Likes = styled.Text`
-    margin: 7px 0px;
     font-weight: 600;
     color: ${props => props.theme.boxColor.color};
+    margin: 7px 0px;
     
 `
 
 const Caption = styled.View`
     flex-direction: row;
-    
 `
 
 const CaptionText = styled.Text`
     color: ${props => props.theme.boxColor.color};
+    margin-left: 10px;
+`
+
+const CommentContainer = styled.View``
+
+const CommentNumber = styled.Text`
+    color: ${props => props.theme.boxColor.color};
+    margin: 10px 0px;
+    font-size: 10px;
+`
+
+const CommentsBlock = styled.View`
+    flex-direction: row;
+    padding: 5px 0px;
+`
+
+const Comments = styled.Text`
     margin-left: 10px;
 `
 
@@ -73,7 +89,7 @@ const TOGGLE_LIKE_MUTATION = gql`
     }
 `
 
-function Photo({id, user, file, isLiked, likes, caption}) {
+function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber, isFullView}) {
     const navigation = useNavigation();
     const {width, height} = useWindowDimensions();
     const [imageHeight, setImageHeight] = useState(height - 450);
@@ -85,7 +101,7 @@ function Photo({id, user, file, isLiked, likes, caption}) {
             // set state 
             setImageHeight(height / 3);
         });
-    }, [file]);
+    }, []);
 
     const updateToggleLike = (cache, result) => {
         const { data : { toggleLike : {ok}}} = result;
@@ -127,9 +143,9 @@ function Photo({id, user, file, isLiked, likes, caption}) {
         <Container>
             <Header onPress={goToProfile}>
                 <UserAvatar resizeMode="cover" 
-                    source={{uri: user.avatar}}
+                    source={{uri: user?.avatar}}
                     />
-                <Username>{user.username}</Username>
+                <Username>{user?.username}</Username>
             </Header>
             <File style={{
                 width,
@@ -149,10 +165,21 @@ function Photo({id, user, file, isLiked, likes, caption}) {
                 </TouchableOpacity>
                 <Caption>
                     <TouchableOpacity onPress={goToProfile}>
-                        <Username>{user.username}</Username>
+                        <Username>{user?.username}</Username>
                     </TouchableOpacity>
                     <CaptionText>{caption}</CaptionText>
                 </Caption>
+                <CommentNumber>{commentNumber === 1 ? "1 Comment" : `${commentNumber} Comments`} </CommentNumber>
+                {isFullView ? 
+                    <CommentContainer>
+                        {comments?.map(item => 
+                            <CommentsBlock key={item.id}>
+                                <Username>{item.user?.username}</Username>
+                                <Comments>{item.payload}</Comments>
+                            </CommentsBlock>
+                        )}
+                    </CommentContainer>
+                : null}
             </BottomContainer>
         </Container>
     )
@@ -168,6 +195,17 @@ Photo.propTypes = {
     file: PropTypes.string.isRequired,
     isLiked: PropTypes.bool.isRequired,
     likes: PropTypes.number,
+    isFullView: PropTypes.bool,
+    commentNumber: PropTypes.number,
+    comments: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.number,
+        payload: PropTypes.string,
+        user: PropTypes.shape({
+            avatar: PropTypes.string,
+            username: PropTypes.string.isRequired,
+        })
+    }))
+
 }
 
 export default Photo;

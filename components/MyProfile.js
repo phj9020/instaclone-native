@@ -6,7 +6,7 @@ import {useWindowDimensions} from 'react-native';
 
 const Container = styled.View`
     background-color: ${props => props.theme.boxColor.backgroundColor};
-    padding: 20px 0px;
+    padding: 20px 0px 0px 0px;
 `
 const ProfileContainer = styled.View`
     flex-direction: row;
@@ -24,7 +24,6 @@ const ProfileInfo = styled.View`
     align-items: center;
 `
 const Col = styled.View`
-    /* width: 29%; */
     padding: 0px 10px;
     align-items: center;
 `
@@ -95,7 +94,7 @@ function MyProfile({
     const navigation = useNavigation();
 
     return (
-        <Container style={{height:height}}>
+        <Container style={{minHeight:height}}>
             <ProfileContainer>
                 <Avatar source={{uri: avatar}} />
                 <ProfileInfo>

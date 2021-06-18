@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Profile from '../screens/Profile';
-import Photo from '../screens/Photo';
+import Photo from '../screens/PhotoScreen';
 import Feed from '../screens/Feed';
 import Search from '../screens/Search';
 import Notification from '../screens/Notification';
