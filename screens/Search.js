@@ -41,8 +41,8 @@ const ResultImage = styled.Image`
 
 
 const SEARCH_PHOTO_QUERY = gql`
-    query searchPhoto($keyword: String!, $page: Int!) {
-        searchPhoto(keyword: $keyword, page: $page) {
+    query searchPhoto($keyword: String!, $offset: Int!) {
+        searchPhoto(keyword: $keyword, offset: $offset) {
             id
             file
         }
@@ -56,7 +56,7 @@ function Search({navigation}) {
     const {width, height} = useWindowDimensions();
     const numberOfColumns = 3;
     // useLazyQuery for delay, which returns mutation type 
-    const [startQueryFn, {loading, data, called, refetch}]= useLazyQuery(SEARCH_PHOTO_QUERY);
+    const [startQueryFn, {loading, data, called, refetch, fetchMore}]= useLazyQuery(SEARCH_PHOTO_QUERY);
 
     console.log(data);
 
@@ -64,7 +64,7 @@ function Search({navigation}) {
         startQueryFn({
             variables: {
                 keyword: data.keyword,
-                page:1
+                offset:0
             }
         });
     }
@@ -136,6 +136,12 @@ function Search({navigation}) {
                             </MessageContainer>
                         ) : 
                         <FlatList 
+                            onEndReachedThreshold={0.1}
+                            onEndReached={()=> fetchMore({ 
+                                variables: {
+                                    offset: data?.searchPhoto?.length,
+                                }
+                            })}
                             refreshing={refresh}
                             onRefresh={refreshToRefetch}
                             numColumns={numberOfColumns}
