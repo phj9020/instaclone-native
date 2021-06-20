@@ -49,19 +49,19 @@ function Comments({route}) {
     const {register, handleSubmit, watch, setValue, getValues} = useForm();
 
 
-    const {data, loading:seePhotoCommentloading, refetch} = useQuery(SEE_PHOTO_COMMENTS_QUERY, {
+    const {data, loading:seePhotoCommentloading, refetch, fetchMore} = useQuery(SEE_PHOTO_COMMENTS_QUERY, {
         variables: {
             id: photoId,
             offset: 0,
         }
     });
 
+    console.log(data?.seePhotoComments?.length);
+
     const createCommentUpdate = (cache, result) => {
         const {comment} = getValues();
         setValue("comment", "");
         const {data : {createComment: {ok, id}}} = result;
-        console.log(comment);
-        console.log(id);
 
         if(ok && meData?.me) {
             const newComment = {
@@ -145,6 +145,13 @@ function Comments({route}) {
         <DismissKeyboard>
             <ScreenLayout loading={seePhotoCommentloading} >
                 <FlatList
+                    onEndReachedThreshold={0.1}
+                    onEndReached={()=> fetchMore({ 
+                        variables: {
+                            id: photoId,
+                            offset: data?.seePhotoComments?.length,
+                        }
+                    })}
                     refreshing={refresh}
                     onRefresh={refreshToRefetch}
                     style={{flex: 1, width: "100%", height: "100%"}}

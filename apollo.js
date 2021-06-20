@@ -52,6 +52,7 @@ export const cache = new InMemoryCache({
                     },
                 },
                 searchPhoto: offsetLimitPagination(),
+                seePhotoComments: offsetLimitPagination(),
             }
         }
     }

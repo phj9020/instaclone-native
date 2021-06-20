@@ -45,13 +45,6 @@ const Payload = styled.Text`
     margin-left: 5px;
 `
 
-const CommentWriteContainer = styled.View`
-    background-color: black;
-`
-
-const TextInput = styled.TextInput`
-
-`
 
 function CommentList({id, user, payload, isMine, createdAt}) {
 
