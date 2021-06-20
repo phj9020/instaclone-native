@@ -2,11 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components/native';
 import moment from 'moment';
+import {useNavigation} from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
 
 const Container = styled.View`
     padding: 0px 5px;
-    background-color: ${props=> props.theme.boxColor.backgroundColor}
+    background-color: ${props=> props.theme.boxColor.backgroundColor};
 `
+
 
 const CommentContainer = styled.View`
     flex-direction: row;
@@ -33,6 +36,7 @@ const DefaultAvatar = styled.Image`
 const Username = styled.Text`
     color: ${props => props.theme.boxColor.color};
     font-size: 12px;
+    font-weight: bold;
 `
 
 const Date = styled.Text`
@@ -47,17 +51,22 @@ const Payload = styled.Text`
 
 
 function CommentList({id, user, payload, isMine, createdAt}) {
+    const navigation = useNavigation();
 
     return (
-        <Container>
+        <Container key={id}>
             <CommentContainer>
                 <Col>
-                    {user?.avatar === null ? <DefaultAvatar source={require("../assets/profile.jpg")} /> : 
-                        <Avatar source={{uri: user?.avatar}}/>
-                    }
+                    <TouchableOpacity onPress={()=> navigation.navigate("Profile", {username: user?.username})}>
+                        {user?.avatar === null ? <DefaultAvatar source={require("../assets/profile.jpg")} /> : 
+                            <Avatar source={{uri: user?.avatar}}/>
+                        }
+                    </TouchableOpacity>
                 </Col>
                 <Col>
-                    <Username key={user?.id}>{user?.username}</Username>
+                    <TouchableOpacity onPress={()=> navigation.navigate("Profile", {username: user?.username})}>
+                        <Username key={user?.id}>{user?.username}</Username>
+                    </TouchableOpacity>
                     <Date>{moment.unix(createdAt / 1000).endOf('day').fromNow()}</Date>
                 </Col>
                 <Col>
