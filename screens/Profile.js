@@ -1,14 +1,46 @@
 import React, {useEffect, useState} from 'react';
+import { gql, useQuery } from "@apollo/client";
 import {Text, View, ScrollView, RefreshControl} from 'react-native';
 import MyProfile from '../components/MyProfile';
 import ScreenLayout from '../components/ScreenLayout';
 import useMe from '../hooks/useMe';
+import { PHOTO_FRAGMENT, USER_FRAGMENT } from '../fragments';
+
+const SEE_PROFILE_QUERY = gql`
+    query seeProfile($username: String!) {
+        seeProfile(username: $username) {
+            ...UserFragment
+            bio,
+            firstName,
+            lastName,
+            totalFollowers,
+            totalFollowings,
+            isMe,
+            isFollowing,
+            photos {
+                ...PhotoFragment
+            }
+        }
+    }
+    ${PHOTO_FRAGMENT}
+    ${USER_FRAGMENT}
+`
 
 
 function Profile({navigation, route}) {
-    const {data : {me : {username: myUsername}}} = useMe();
-    const {id, username} = route?.params;
+    // const {data : {me : {username: myUsername}}} = useMe();
+    const {username} = route?.params;
     const [refresh, setRefresh] = useState(false);
+
+    const {data, loading, refetch} = useQuery(SEE_PROFILE_QUERY, {
+        variables:{
+            username: username
+        }
+    });
+
+    console.log(data);
+
+
 
     const refreshToRefetch = async()=> {
         setRefresh(true);
@@ -24,7 +56,7 @@ function Profile({navigation, route}) {
         }
     },[])
     return (
-        <ScreenLayout loading={false}>
+        <ScreenLayout loading={loading}>
             <ScrollView 
                 style={{width: "100%"}}
                 refreshControl={
@@ -34,13 +66,7 @@ function Profile({navigation, route}) {
                     />
                 }
             >
-
-                {/* 
-                    To Do;
-                    if isMe render MyProfile else see Others Profile using seeProfile 
-                    
-                */}
-
+                <MyProfile {...data?.seeProfile} />
             </ScrollView>
         </ScreenLayout>
     )

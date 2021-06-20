@@ -14,6 +14,7 @@ const ME_QUERY = gql`
             username
             bio
             avatar
+            isFollowing
             photos {
                 ...PhotoFragment
             }
@@ -62,6 +63,7 @@ function Me({navigation}) {
                     firstName={data?.me?.firstName}
                     lastName={data?.me?.lastName}
                     username={data?.me?.username}
+                    isFollowing={data?.me?.isFollowing}
                     photos={data?.me?.photos}
                     totalFollowers={data?.me?.totalFollowers}
                     totalFollowings={data?.me?.totalFollowings}

@@ -3,6 +3,8 @@ import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
 import {useNavigation} from '@react-navigation/native';
 import {useWindowDimensions} from 'react-native';
+import {gql, useMutation} from '@apollo/client';
+import useMe from '../hooks/useMe';
 
 const Container = styled.View`
     background-color: ${props => props.theme.boxColor.backgroundColor};
@@ -52,6 +54,20 @@ const ProfileBioContainer = styled.View`
     padding: 0px 15px;
     margin-top: 20px;
 `
+
+const ButtonContainer = styled.TouchableOpacity`
+    width: 100%;
+    padding: 7px 0px;
+    background-color:${props => props.theme.accent.backgroundColor};
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+`
+
+const ButtonText = styled.Text`
+    color: white;
+`
+
 const Name = styled.Text`
     color: ${props => props.theme.boxColor.color};
 `
@@ -78,6 +94,26 @@ const PhotoFeed = styled.Image`
     height:140px;
 `
 
+const FOLLOW_USER_MUTATION = gql`
+    mutation followUser($username:String!){
+        followUser(username: $username) {
+            ok
+            error
+            id
+        }
+    }
+`
+
+const UNFOLLOW_USER_MUTATION = gql`
+    mutation unfollowUser($username:String!) {
+        unfollowUser(username: $username) {
+            ok
+            error
+            id
+        }
+    }
+`
+
 function MyProfile({ 
     id,
     avatar,
@@ -86,12 +122,86 @@ function MyProfile({
     lastName,
     username,
     photos,
+    isFollowing,
     totalFollowers,
     totalFollowings,
     isMe,
 }) {
     const {width, height} = useWindowDimensions();
     const navigation = useNavigation();
+    const {data:meData} = useMe();
+    
+    const fragmentId = `User:${id}`;
+    const myFragmentId = `User:${meData?.me?.id}`;
+
+    const followUserUpdate = (cache, result) => {
+        const {data: {followUser: {ok}}} = result;
+        if(ok) {
+            // change user's followers 
+            cache.modify({
+                id: fragmentId,
+                fields: {
+                    isFollowing() {
+                        return true
+                    },
+                    totalFollowers(prev) {
+                        return prev + 1;
+                    }
+                }
+            });
+            // change my followings 
+            cache.modify({
+                id: myFragmentId,
+                fields: {
+                    totalFollowings(prev){
+                        return prev + 1;
+                    }
+                }
+            });
+        }
+    }
+
+    const unfollowUserUpdate = (cache, result) => {
+        const {data: {unfollowUser : {ok}}} = result;
+
+        if(ok) {
+            // change user's followers 
+            cache.modify({
+                id: fragmentId,
+                fields: {
+                    isFollowing() {
+                        return false
+                    },
+                    totalFollowers(prev) {
+                        return prev - 1;
+                    }
+                }
+            });
+            // change my followings 
+            cache.modify({
+                id: myFragmentId,
+                fields: {
+                    totalFollowings(prev){
+                        return prev - 1;
+                    }
+                }
+            });
+        }
+    }
+
+    const [followUser] = useMutation(FOLLOW_USER_MUTATION, {
+        variables: {
+            username,
+        },
+        update: followUserUpdate,
+    });
+
+    const [unfollowUser] = useMutation(UNFOLLOW_USER_MUTATION, {
+        variables:{
+            username,
+        },
+        update: unfollowUserUpdate
+    });
 
     return (
         <Container style={{minHeight:height}}>
@@ -99,7 +209,7 @@ function MyProfile({
                 <Avatar source={{uri: avatar}} />
                 <ProfileInfo>
                     <Col>
-                        <PhotoNum>{photos.length}</PhotoNum>
+                        <PhotoNum>{photos?.length}</PhotoNum>
                         <PhotoNumText>Posts</PhotoNumText>
                     </Col>
                     <Col>
@@ -116,6 +226,20 @@ function MyProfile({
                 <Name>{firstName} {lastName}</Name>
                 <Username>{username}</Username>
                 {bio? <Bio>{bio}</Bio> : null}
+                    {isMe ? 
+                        <ButtonContainer>
+                            <ButtonText>Edit Profile</ButtonText> 
+                        </ButtonContainer>
+                        :
+                        isFollowing ? 
+                        <ButtonContainer onPress={unfollowUser}>
+                            <ButtonText>Unfollow</ButtonText>
+                        </ButtonContainer>
+                        : 
+                        <ButtonContainer onPress={followUser}>
+                            <ButtonText>Follow</ButtonText>
+                        </ButtonContainer>
+                    }
             </ProfileBioContainer>
             <PhotoContainer>
                 {photos?.map(feed => 
@@ -135,6 +259,7 @@ MyProfile.propTypes = {
     username: PropTypes.string,
     bio: PropTypes.string,
     avatar: PropTypes.string,
+    isFollowing: PropTypes.bool,
     photos: PropTypes.arrayOf(
         PropTypes.shape({
         id: PropTypes.number.isRequired,

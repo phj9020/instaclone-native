@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
 import {useNavigation} from '@react-navigation/native';
 import {gql, useMutation} from '@apollo/client';
+import useMe from '../hooks/useMe';
 
 const Wrapper = styled.View`
     padding: 10px 15px;
@@ -66,7 +67,9 @@ const UNFOLLOW_USER_MUTATION = gql`
 
 function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
     const navigation = useNavigation();
+    const {data:meData} = useMe();
     const fragmentId = `User:${id}`;
+    const myFragmentId = `User:${meData?.me?.id}`;
 
     const followUserUpdate = (cache, result) => {
         const {data: {followUser: {ok}}} = result;
@@ -78,7 +81,16 @@ function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
                         return true
                     },
                 }
-            })
+            });
+            // change my followings 
+            cache.modify({
+                id: myFragmentId,
+                fields: {
+                    totalFollowings(prev){
+                        return prev + 1;
+                    }
+                }
+            });
         }
     }
 
@@ -93,7 +105,16 @@ function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
                         return false
                     },
                 }
-            })
+            });
+            // change my followings 
+            cache.modify({
+                id: myFragmentId,
+                fields: {
+                    totalFollowings(prev){
+                        return prev - 1;
+                    }
+                }
+            });
         }
     }
 
@@ -101,7 +122,9 @@ function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
         variables: {
             username,
         },
-        update: followUserUpdate
+        update: followUserUpdate,
+        //뭔가 여기서 보내야 할듯? notification 
+        // onCompleted: (data) => { navigation.navigate("Notification", { dataname: data } )}
     });
 
     const [unfollowUser] = useMutation(UNFOLLOW_USER_MUTATION, {
