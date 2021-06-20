@@ -15,6 +15,12 @@ const ProfileContainer = styled.View`
     align-items: center;
     padding: 0px 15px;
 `
+const DefaultAvatar = styled.Image`
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+`
+
 const Avatar = styled.Image`
     width: 100px;
     height: 100px;
@@ -206,7 +212,9 @@ function MyProfile({
     return (
         <Container style={{minHeight:height}}>
             <ProfileContainer>
-                <Avatar source={{uri: avatar}} />
+                {avatar === null ? <DefaultAvatar source={require("../assets/profile.jpg")} /> : 
+                    <Avatar source={{uri: avatar}} />
+                }
                 <ProfileInfo>
                     <Col>
                         <PhotoNum>{photos?.length}</PhotoNum>

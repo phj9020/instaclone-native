@@ -22,6 +22,13 @@ const UserAvatar = styled.Image`
     height:25px;
     border-radius: 13px;
 `
+const DefaultAvatar = styled.Image`
+    margin-right: 10px;
+    width:25px;
+    height:25px;
+    border-radius: 13px;
+`
+
 const Username = styled.Text`
     color: ${props => props.theme.boxColor.color};
     font-weight: 600;
@@ -142,9 +149,13 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
     return (
         <Container>
             <Header onPress={goToProfile}>
-                <UserAvatar resizeMode="cover" 
-                    source={{uri: user?.avatar}}
-                    />
+                {user?.avatar === null ? 
+                    <DefaultAvatar source={require("../assets/profile.jpg")} />
+                : 
+                    <UserAvatar resizeMode="cover" 
+                        source={{uri: user?.avatar}}
+                        />
+                }
                 <Username>{user?.username}</Username>
             </Header>
             <File style={{
@@ -156,7 +167,7 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
                     <Action onPress={toggleLike}>
                         <Icon name={isLiked ? "heart" : "heart-outline"} colorIsLiked={isLiked} size={22} />
                     </Action>
-                    <Action onPress={()=>navigation.navigate("Comments")}>
+                    <Action onPress={()=>navigation.navigate("Comments", {photoId: id})}>
                         <Icon name="chatbubble-outline" size={22}/>
                     </Action>
                 </Actions>
