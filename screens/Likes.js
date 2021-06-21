@@ -37,7 +37,7 @@ function Likes({route, navigation}) {
     );
 
     return (
-        <ScreenLayout>
+        <ScreenLayout loading={loading}>
             <FlatList 
                 ItemSeparatorComponent={() => 
                     <View 

@@ -32,6 +32,15 @@ const CREATE_COMMENT_MUTATION = gql`
     }
 `
 
+const CREATE_NOTIFICATION_MUTATION = gql`
+    mutation createNotification($userId: Int!, $payload: String!) {
+        createNotification(userId: $userId, payload:$payload) {
+            ok
+            id
+        }
+    }
+`
+
 const CommentWriteContainer = styled.View`
     width: 100%;
     background-color: black;
@@ -45,7 +54,7 @@ const TextInput = styled.TextInput`
 function Comments({route}) {
     const {data: meData} = useMe();
     const [refresh, setRefresh] = useState(false);
-    const {photoId} = route?.params
+    const {photoId, userId} = route?.params
     const {register, handleSubmit, watch, setValue, getValues} = useForm();
 
 
@@ -53,10 +62,10 @@ function Comments({route}) {
         variables: {
             id: photoId,
             offset: 0,
-        }
+        },
+        skip: !photoId,
     });
 
-    console.log(data?.seePhotoComments?.length);
 
     const createCommentUpdate = (cache, result) => {
         const {comment} = getValues();
@@ -109,6 +118,12 @@ function Comments({route}) {
 
     const [createComment, {loading}] = useMutation(CREATE_COMMENT_MUTATION, {
         update: createCommentUpdate,
+        onCompleted: (data) => {
+            const {createComment : {ok}} =data;
+            if(ok) {
+                createNotification();
+            }
+        }
     });
 
     const onValid = (data) => {
@@ -122,13 +137,21 @@ function Comments({route}) {
                 }
             })
         }
-    }
+    };
+
+    const [createNotification] = useMutation(CREATE_NOTIFICATION_MUTATION, {
+        variables: {
+            userId : userId,
+            payload: `${meData?.me?.username} Commented on your Photo`
+        }
+    });
 
     useEffect(()=>{
         register("comment", {
             required: true,
-        })
-    },[register])
+        });
+        refetch();
+    },[photoId])
     
     const refreshToRefetch = async()=> {
         setRefresh(true);
@@ -145,13 +168,13 @@ function Comments({route}) {
         <DismissKeyboard>
             <ScreenLayout loading={seePhotoCommentloading} >
                 <FlatList
-                    onEndReachedThreshold={0.1}
-                    onEndReached={()=> fetchMore({ 
-                        variables: {
-                            id: photoId,
-                            offset: data?.seePhotoComments?.length,
-                        }
-                    })}
+                    // onEndReachedThreshold={0.1}
+                    // onEndReached={()=> fetchMore({ 
+                    //     variables: {
+                    //         id: photoId,
+                    //         offset: data?.seePhotoComments?.length,
+                    //     }
+                    // })}
                     refreshing={refresh}
                     onRefresh={refreshToRefetch}
                     style={{flex: 1, width: "100%", height: "100%"}}

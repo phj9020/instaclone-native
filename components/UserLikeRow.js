@@ -64,12 +64,27 @@ const UNFOLLOW_USER_MUTATION = gql`
         }
     }
 `
+const CREATE_NOTIFICATION_MUTATION = gql`
+    mutation createNotification($userId: Int!, $payload: String!) {
+        createNotification(userId: $userId, payload:$payload) {
+            ok
+            id
+        }
+    }
+`
 
 function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
     const navigation = useNavigation();
     const {data:meData} = useMe();
     const fragmentId = `User:${id}`;
     const myFragmentId = `User:${meData?.me?.id}`;
+
+    const [createNotification] = useMutation(CREATE_NOTIFICATION_MUTATION, {
+        variables: {
+            userId : id,
+            payload: `${meData?.me?.username} is Following You`
+        }
+    });
 
     const followUserUpdate = (cache, result) => {
         const {data: {followUser: {ok}}} = result;
@@ -123,8 +138,14 @@ function UserLikeRow({id, username, avatar, isFollowing, isMe}) {
             username,
         },
         update: followUserUpdate,
-        //뭔가 여기서 보내야 할듯? notification 
-        // onCompleted: (data) => { navigation.navigate("Notification", { dataname: data } )}
+        onCompleted: (data) => {
+            const {followUser: {ok}}= data;
+            if(ok) {
+                if(isFollowing) {
+                    createNotification();
+                }
+            }
+        }
     });
 
     const [unfollowUser] = useMutation(UNFOLLOW_USER_MUTATION, {

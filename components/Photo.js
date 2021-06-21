@@ -6,6 +6,7 @@ import {useWindowDimensions, Image} from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {gql, useMutation} from '@apollo/client';
+import useMe from '../hooks/useMe';
 
 const Container = styled.View`
     padding-bottom: 20px;
@@ -96,8 +97,18 @@ const TOGGLE_LIKE_MUTATION = gql`
     }
 `
 
+const CREATE_NOTIFICATION_MUTATION = gql`
+    mutation createNotification($userId: Int!, $payload: String!) {
+        createNotification(userId: $userId, payload:$payload) {
+            ok
+            id
+        }
+    }
+`
+
 function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber, isFullView}) {
     const navigation = useNavigation();
+    const {data:meData} = useMe();
     const {width, height} = useWindowDimensions();
     const [imageHeight, setImageHeight] = useState(height - 450);
 
@@ -137,6 +148,22 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
             id: id,
         },
         update: updateToggleLike,
+        onCompleted: async(data) => {
+            const {toggleLike : {ok}} =data;
+            if(ok) {
+                if(isLiked) {
+                    // send notification
+                    createNotification();
+                }
+            }
+        }
+    });
+
+    const [createNotification] =useMutation(CREATE_NOTIFICATION_MUTATION, {
+        variables: {
+            userId : user?.id,
+            payload: `${meData?.me?.username} Likes your Photo`
+        }
     });
 
     const goToProfile = ()=> {
@@ -144,7 +171,7 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
             username: user.username,
             id: user.id,
         })
-    }
+    };
 
     return (
         <Container>
@@ -167,7 +194,7 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
                     <Action onPress={toggleLike}>
                         <Icon name={isLiked ? "heart" : "heart-outline"} colorIsLiked={isLiked} size={22} />
                     </Action>
-                    <Action onPress={()=>navigation.navigate("Comments", {photoId: id})}>
+                    <Action onPress={()=>navigation.navigate("Comments", {photoId: id, userId : user?.id})}>
                         <Icon name="chatbubble-outline" size={22}/>
                     </Action>
                 </Actions>
@@ -203,8 +230,8 @@ Photo.propTypes = {
         username: PropTypes.string.isRequired
     }),
     caption: PropTypes.string.isRequired,
-    file: PropTypes.string.isRequired,
-    isLiked: PropTypes.bool.isRequired,
+    file: PropTypes.string,
+    isLiked: PropTypes.bool,
     likes: PropTypes.number,
     isFullView: PropTypes.bool,
     commentNumber: PropTypes.number,
