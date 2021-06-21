@@ -131,7 +131,7 @@ function MyProfile({
     isFollowing,
     totalFollowers,
     totalFollowings,
-    isMe,
+    isMe
 }) {
     const {width, height} = useWindowDimensions();
     const navigation = useNavigation();
@@ -235,7 +235,13 @@ function MyProfile({
                 <Username>{username}</Username>
                 {bio? <Bio>{bio}</Bio> : null}
                     {isMe ? 
-                        <ButtonContainer>
+                        <ButtonContainer onPress={() => navigation.navigate("EditProfile", {
+                            bio,
+                            firstName,
+                            lastName,
+                            username,
+                            avatar,
+                        })}>
                             <ButtonText>Edit Profile</ButtonText> 
                         </ButtonContainer>
                         :
