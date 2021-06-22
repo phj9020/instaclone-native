@@ -1,12 +1,12 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-function Upload() {
+function TakePhoto() {
     return (
         <View>
-            <Text>upload</Text>
+            <Text>Take photo</Text>
         </View>
     )
 }
 
-export default Upload
+export default TakePhoto;
