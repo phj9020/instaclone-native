@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { Camera } from 'expo-camera';
 import Slider from '@react-native-community/slider';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {TouchableOpacity, StatusBar} from 'react-native';
 
 const Container = styled.View`
     flex: 1;
@@ -39,9 +39,15 @@ const ActionContainer = styled.View`
 
 const SliderContainer = styled.View``
 
+const CloseButton = styled.TouchableOpacity`
+    position: absolute;
+    left: 10px;
+    top:10px;
+`
 
 
-function TakePhoto() {
+
+function TakePhoto({navigation}) {
     const [ok, setOk] = useState(false);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [zoom, setZoom] = useState(0);
@@ -80,6 +86,7 @@ function TakePhoto() {
     console.log(flashMode);
     return (
         <Container>
+            <StatusBar hidden={true} />
             <Camera
                 type={cameraType}
                 style={{
@@ -87,7 +94,11 @@ function TakePhoto() {
                 }}
                 zoom={zoom}
                 flashMode={flashMode}
-            />
+            >
+                <CloseButton onPress={()=> navigation.navigate("Tabs")}>
+                    <Ionicons name="close" color="white" size={32} />
+                </CloseButton>
+            </Camera>
             <Actions>
                 <SliderContainer>
                     <Slider 
