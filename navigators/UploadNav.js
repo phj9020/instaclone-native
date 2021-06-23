@@ -1,5 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import {Button} from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import SelectPhoto from '../screens/SelectPhoto';
@@ -34,7 +35,12 @@ function UploadNav() {
                         headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
                         headerBackTitleVisible: false,
                     }}>
-                        <Stack.Screen name="Select" options={{title: "Choose a Photo"}} component={SelectPhoto} />
+                        <Stack.Screen  
+                            name="Select" 
+                            options={{
+                                title: "Choose a Photo",
+                            }} 
+                            component={SelectPhoto} />
                     </Stack.Navigator>}
             </Tab.Screen>
             <Tab.Screen name="Take Photo" component={TakePhoto} />

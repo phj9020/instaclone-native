@@ -20,6 +20,7 @@
     "expo-app-loading": "^1.0.3",
     "expo-asset": "~8.3.1",
     "expo-font": "~9.1.0",
+    "expo-media-library": "~12.0.2",
     "expo-status-bar": "~1.0.4",
     "graphql": "^15.5.0",
     "moment": "^2.29.1",
