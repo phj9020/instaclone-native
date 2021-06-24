@@ -1,9 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { Camera } from 'expo-camera';
 import Slider from '@react-native-community/slider';
-import {TouchableOpacity, StatusBar} from 'react-native';
+import {Image, Alert, TouchableOpacity, StatusBar} from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import { useIsFocused } from '@react-navigation/native';
 
 const Container = styled.View`
     flex: 1;
@@ -45,10 +47,31 @@ const CloseButton = styled.TouchableOpacity`
     top:10px;
 `
 
+const PhotoActionsContainer = styled.View`
+    flex: 0.3;
+    background-color: black;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+`
+
+const PhotoAction = styled.TouchableOpacity`
+    background-color: ${props => props.theme.accent.backgroundColor};
+    padding: 5px 10px;
+    border-radius: 4px;
+`
+
+const PhotoActionText= styled.Text`
+    font-weight: bold;
+    color:white;
+`
 
 
 function TakePhoto({navigation}) {
+    const camera = useRef();
+    const [takenPhoto, setTakenPhoto] = useState("");
     const [ok, setOk] = useState(false);
+    const [cameraReady, setCameraReady] = useState(false);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [zoom, setZoom] = useState(0);
     const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
@@ -83,22 +106,75 @@ function TakePhoto({navigation}) {
             setFlashMode(Camera.Constants.FlashMode.off)
         }
     };
-    console.log(flashMode);
+    
+    const onCameraReady = ()=> setCameraReady(true);
+
+    const takePhoto = async()=> {
+        // if camera is there
+        if(camera.current && cameraReady){
+            const {uri} = await camera.current.takePictureAsync({
+                quality: 1, 
+                exif:true,
+                skipProcessing:true,
+            });
+            // uri 를 state에 저장 
+            setTakenPhoto(uri);
+        }
+    };
+    
+    const onDismiss = () => setTakenPhoto("");
+    
+    const goToUpload = async(save)=> {
+        if(save){
+            // save in filesystem  : uri는 이미 takenPhoto state에 저장되어 있다.
+            // we dont need return object from createAssetAsync() so, use saveToLibraryAsync instead
+            await MediaLibrary.saveToLibraryAsync(takenPhoto);
+        }
+        // go to upload
+        navigation.navigate("UploadForm", {file: takenPhoto});
+    }
+
+    const onUpload = ()=> {
+        // ask user to upload or save photo and upload
+        Alert.alert(
+            "Save Photo",
+            "Save Photo & Upload? or just Upload?",
+            [
+                {
+                    text: "Save and Upload",
+                    onPress: () => goToUpload(true),
+                },
+                {   text: "Just Upload", 
+                    onPress: () => goToUpload(false),
+                }
+            ]
+        );
+    };
+
+    // isFocused tells a view user looking
+    const isFocused = useIsFocused();
+
     return (
         <Container>
-            <StatusBar hidden={true} />
-            <Camera
+            {isFocused ? <StatusBar hidden={true} /> : null}
+            {takenPhoto === "" ? <Camera
                 type={cameraType}
                 style={{
                     flex:1,
                 }}
                 zoom={zoom}
                 flashMode={flashMode}
+                ref={camera}
+                onCameraReady={onCameraReady}
             >
                 <CloseButton onPress={()=> navigation.navigate("Tabs")}>
                     <Ionicons name="close" color="white" size={32} />
                 </CloseButton>
-            </Camera>
+            </Camera> 
+            : 
+            <Image source={{uri: takenPhoto}} style={{flex:1}} />
+            }
+            {takenPhoto === "" ? 
             <Actions>
                 <SliderContainer>
                     <Slider 
@@ -111,7 +187,7 @@ function TakePhoto({navigation}) {
                     />
                 </SliderContainer>
                 <ButtonsContainer>
-                    <TakePhotoBtn />
+                    <TakePhotoBtn onPress={takePhoto} />
                     <ActionContainer>
                         <TouchableOpacity onPress={onFlashChange}>
                             <Ionicons name={
@@ -127,6 +203,16 @@ function TakePhoto({navigation}) {
                     </ActionContainer>
                 </ButtonsContainer>
             </Actions>
+            : 
+            <PhotoActionsContainer>
+                <PhotoAction onPress={onDismiss}>
+                    <PhotoActionText>Dismiss</PhotoActionText>
+                </PhotoAction>
+                <PhotoAction onPress={onUpload}>
+                    <PhotoActionText>Upload</PhotoActionText>
+                </PhotoAction>
+            </PhotoActionsContainer>
+            }
         </Container>
     )
 }

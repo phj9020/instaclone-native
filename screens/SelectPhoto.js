@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import {View, Text, FlatList, Image, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {FlatList, Image, TouchableOpacity, useWindowDimensions} from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -61,21 +61,25 @@ function SelectPhoto({navigation}) {
             setOk(true);
         }
     };
-    console.log(photos);
+    // console.log(photos);
 
     useEffect(() => {
         getPermission();
         getPhotos();
     },[ok]);
 
-
-    const HeaderRight = () => <TouchableOpacity><HeaderRightText>Next</HeaderRightText></TouchableOpacity>
     
+    const HeaderRight = () => (
+        <TouchableOpacity onPress={()=> navigation.navigate("UploadForm", {file: chosenPhoto})} >
+            <HeaderRightText>Next</HeaderRightText>
+        </TouchableOpacity>
+    )
+
     useEffect(() => {
         navigation.setOptions({
             headerRight: HeaderRight
         })
-    },[])
+    },[chosenPhoto])
 
     const choosePhoto = (uri) => {
         setChosenPhoto(uri);
