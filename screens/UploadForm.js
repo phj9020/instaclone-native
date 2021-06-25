@@ -5,6 +5,7 @@ import DismissKeyboard from '../components/DismissKeyboard';
 import { useForm } from 'react-hook-form';
 import { gql, useMutation } from "@apollo/client";
 import { FEED_PHOTO } from '../fragments';
+import { ReactNativeFile } from 'apollo-upload-client';
 
 const Container = styled.View`
     flex:1;
@@ -45,8 +46,26 @@ function UploadForm({navigation, route}) {
     const {register, handleSubmit, setValue} = useForm();
     const {file} = route?.params;
 
+    const updateUploadPhoto = (cache, result)=> {
+        const {data: {uploadPhoto}} = result;
+        if(uploadPhoto.id) {
+            cache.modify({
+                id: "ROOT_QUERY",
+                fields: {
+                    seeFeed(prev) {
+                        // return just upload fn + prev fn in Array
+                        return [uploadPhoto, ...prev]
+                    },
+                },
+            });
 
-    const [uploadPhoto, {loading}] = useMutation(UPLOAD_PHOTO_MUTATION)
+            navigation.navigate("Tabs");
+        }
+    };
+
+    const [uploadPhoto, {loading}] = useMutation(UPLOAD_PHOTO_MUTATION, {
+        update: updateUploadPhoto,
+    })
 
     const HeaderRight = () => (
         <TouchableOpacity onPress={handleSubmit(onValid)}>
@@ -68,11 +87,17 @@ function UploadForm({navigation, route}) {
     },[loading])
 
     const onValid = (data) => {
+        const reactFile = new ReactNativeFile({
+            uri: file,
+            name: 'a.jpg',
+            type: 'image/jpeg',
+        });
+
         // console.log(data);
         uploadPhoto({
             variables: {
                 // to do file upload variables
-                file: {},
+                file: reactFile,
                 caption: data?.caption
             }
         })

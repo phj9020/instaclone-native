@@ -2,6 +2,8 @@ import { ApolloClient,InMemoryCache, makeVar, createHttpLink} from "@apollo/clie
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setContext} from '@apollo/client/link/context';
 import {offsetLimitPagination} from "@apollo/client/utilities";
+import {onError} from "@apollo/client/link/error";
+import { createUploadLink } from 'apollo-upload-client';
 
 export const TOKEN = "token";
 export const LOGGEDIN = "loggedIn";
@@ -25,6 +27,11 @@ const httpLink = createHttpLink({
     uri:'http://913452c165a3.ngrok.io/graphql'
 });
 
+// use createUploadLink
+const uploadHttpLink = createUploadLink({
+    uri:'http://913452c165a3.ngrok.io/graphql'
+});
+
 // token을 헤더에 더하기 위해 
 const authLink = setContext((_, { headers }) => {
     return {
@@ -40,17 +47,7 @@ export const cache = new InMemoryCache({
         Query : {
             fields: {
                 // Method 1 : offsetLimitPagination
-                // seeFeed: offsetLimitPagination()
-                
-                // Method 2 : Configure keyArgs and merge
-                // we dont want apollo to differenciate between query based on argument
-                seeFeed :{
-                    keyArgs: false,
-                    // merge data
-                    merge(existing = [], incoming = []) {
-                        return [...existing, ...incoming];
-                    },
-                },
+                seeFeed :offsetLimitPagination(),
                 searchPhoto: offsetLimitPagination(),
                 // seePhotoComments: offsetLimitPagination(),
             }
@@ -58,8 +55,17 @@ export const cache = new InMemoryCache({
     }
 });
 
+const onErrorLink = onError(({graphQLErrors, networkError}) => {
+    if(graphQLErrors) {
+        console.log("GraphQL Error", graphQLErrors);
+    } 
+    if(networkError) {
+        console.log("Network Error", networkError);
+    }
+});
+
 const client = new ApolloClient({
-    link: authLink.concat(httpLink),
+    link: authLink.concat(onErrorLink).concat(uploadHttpLink),
     cache: cache,
 });
 

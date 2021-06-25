@@ -117,7 +117,7 @@ function Photo({id, user, file, isLiked, likes, caption, comments, commentNumber
         Image.getSize(file, (width, height) => {
 
             // set state 
-            setImageHeight(height / 3);
+            setImageHeight(height / 6);
         });
     }, []);
 
@@ -229,7 +229,7 @@ Photo.propTypes = {
         avatar: PropTypes.string,
         username: PropTypes.string.isRequired
     }),
-    caption: PropTypes.string.isRequired,
+    caption: PropTypes.string,
     file: PropTypes.string,
     isLiked: PropTypes.bool,
     likes: PropTypes.number,
