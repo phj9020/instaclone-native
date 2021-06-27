@@ -16,10 +16,14 @@ function MessagesNav() {
                 headerTintColor: 'white',
                 headerTitleAlign: "center",
                 headerBackTitleVisible: false,
-                headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
             }}
-        >
-            <Stack.Screen name="Rooms" component={Rooms} />
+            >
+            <Stack.Screen 
+                options={{
+                    headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
+                }} 
+                name="Rooms" 
+                component={Rooms} />
             <Stack.Screen name="Room" component={Room} />
         </Stack.Navigator>
     )
