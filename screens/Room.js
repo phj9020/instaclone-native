@@ -4,6 +4,7 @@ import {FlatList, KeyboardAvoidingView} from 'react-native';
 import {gql, useQuery, useMutation} from '@apollo/client';
 import ScreenLayout from '../components/ScreenLayout';
 import { useForm } from 'react-hook-form';
+import useMe from '../hooks/useMe';
 
 
 const MessageContainer = styled.View`
@@ -41,7 +42,8 @@ const MessageInput = styled.TextInput`
 const SEE_ROOM_QUERY = gql`
     query seeRoom($id: Int!) {
         seeRoom(id: $id) {
-            messages(offset: 0) {
+            id
+            messages {
                 id
                 payload
                 user {
@@ -60,20 +62,105 @@ const SEND_MESSAGE_MUTATION = gql`
             ok
             error
             id
+            roomId
         }
     }
 `
 
 function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username}) {
-    const {handleSubmit, register, setValue} = useForm();
+    const {handleSubmit, register, setValue, getValues, watch} = useForm();
+    const {data: meData} = useMe();
+    
     const {data, loading} = useQuery(SEE_ROOM_QUERY, {
         variables: {
-            id: route?.params?.roomId || youAndIRoomNumber
+            id: route?.params?.roomId || youAndIRoomNumber 
         }
     });
 
+    const updateSendMessage = (cache, result)=> {
+        const {data : {sendMessage : {ok, id, roomId}}} = result;
+        console.log(result);
+
+        if(ok && meData) {
+            const {payload} = getValues();
+            setValue("payload", "");
+
+            // create fake obj
+            const messageObj = {
+                id: id,
+                payload: payload,
+                user: {
+                    username: meData?.me?.username,
+                    avatar: meData?.me?.avatar,
+                },
+                read: true,
+                __typename: "Message",
+            };
+
+            // put fake obj in cache : wrtieFragment put this message on the cache
+            const messageFragment = cache.writeFragment({
+                fragment: gql`
+                    fragment NewMessage on Message {
+                        id
+                        payload
+                        user {
+                            username
+                            avatar
+                        }
+                        read
+                    }
+                `,
+                data: messageObj,
+            });
+
+            console.log("youAndIRoomNumber", youAndIRoomNumber);
+            console.log("route?.params?.roomId ", route?.params?.roomId );
+
+            // sendMessage하면서 자동으로 생성된 roomId를 가져왔는데.. 
+            if(youAndIRoomNumber === undefined && route?.params?.roomId === undefined){
+                cache.modify({
+                    id: `Room:${roomId}`,
+                    fields: {
+                        messages(prev) {
+                            return [...prev, messageFragment];
+                        },
+                    },
+                });
+            } else if(route?.params?.roomId) {
+                cache.modify({
+                    id: `Room:${route.params.roomId}`,
+                    fields: {
+                        messages(prev) {
+                            return [...prev, messageFragment];
+                        },
+                    },
+                });
+            } else if(youAndIRoomNumber) {
+                cache.modify({
+                    id: `Room:${youAndIRoomNumber}`,
+                    fields: {
+                        messages(prev) {
+                            return [...prev, messageFragment];
+                        },
+                    },
+                });
+            }
+        }
+    }
     
-    const [sendMessage, {loading: sendingMessage}] = useMutation(SEND_MESSAGE_MUTATION);
+    const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION, {
+        update: updateSendMessage,
+        onCompleted: (data)=> {
+            const {sendMessage : {ok, roomId}} = data;
+            if(ok) {
+                refetch({
+                    variables: {
+                        id: roomId
+                    }
+                });
+            }
+        }
+    });
     
     useEffect(()=> {
         if(!talkingToUserId) {
@@ -89,15 +176,25 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
         });
     },[register]); 
 
+
     const onValid = (data) => {
-        if(talkingToUserId){
+        if(youAndIRoomNumber === undefined && route?.params?.roomId === undefined){
             sendMessage({
                 variables: {
                     payload : data?.payload,
                     userId: talkingToUserId,
                 }
             })
-        } else {
+        } else if(youAndIRoomNumber){
+            // send messages through their profile 
+            sendMessage({
+                variables: {
+                    payload : data?.payload,
+                    roomId: youAndIRoomNumber,
+                }
+            })
+        } else if(route?.params?.roomId) {
+            // send message through rooms 
             sendMessage({
                 variables: {
                     payload : data?.payload,
@@ -138,6 +235,7 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
                     placeholder="Write a Message..."
                     returnKeyLabel="Send Message"
                     returnkeyType="send"
+                    value={watch("payload")}
                     onSubmitEditing={handleSubmit(onValid)}
                 />
             </ScreenLayout>
