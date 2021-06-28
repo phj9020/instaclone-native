@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {FlatList, KeyboardAvoidingView} from 'react-native';
 import {gql, useQuery, useMutation} from '@apollo/client';
@@ -68,12 +68,13 @@ const SEND_MESSAGE_MUTATION = gql`
 `
 
 function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username}) {
+    const [createdRoomId, setCreatedRoomId] = useState();
     const {handleSubmit, register, setValue, getValues, watch} = useForm();
     const {data: meData} = useMe();
-    
+
     const {data, loading} = useQuery(SEE_ROOM_QUERY, {
         variables: {
-            id: route?.params?.roomId || youAndIRoomNumber 
+            id: route?.params?.roomId || youAndIRoomNumber || createdRoomId
         }
     });
 
@@ -116,8 +117,9 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
             console.log("youAndIRoomNumber", youAndIRoomNumber);
             console.log("route?.params?.roomId ", route?.params?.roomId );
 
-            // sendMessage하면서 자동으로 생성된 roomId를 가져왔는데.. 
+            // sendMessage하면서 자동으로 생성된 roomId를 가져와서 state저장
             if(youAndIRoomNumber === undefined && route?.params?.roomId === undefined){
+                setCreatedRoomId(roomId);
                 cache.modify({
                     id: `Room:${roomId}`,
                     fields: {
@@ -150,16 +152,6 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
     
     const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION, {
         update: updateSendMessage,
-        onCompleted: (data)=> {
-            const {sendMessage : {ok, roomId}} = data;
-            if(ok) {
-                refetch({
-                    variables: {
-                        id: roomId
-                    }
-                });
-            }
-        }
     });
     
     useEffect(()=> {
