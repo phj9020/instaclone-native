@@ -17,6 +17,12 @@ const Col = styled.View`
     flex-direction: row;
     align-items: center;
 `
+const DefaultAvatar = styled.Image`
+    margin-right: 20px;
+    width:50px;
+    height:50px;
+    border-radius: 25px;
+`
 
 const Avatar = styled.Image`
     width: 50px;
@@ -51,7 +57,7 @@ const UnreadDot = styled.View`
 function RoomItem({unreadTotal, users, id}) {
     const {data: meData} = useMe();
     const navigation = useNavigation();
-
+    
     // compare with users Array thats not match my username
     const talkingTo = users.find(user => user.username !== meData?.me?.username);
 
@@ -61,7 +67,11 @@ function RoomItem({unreadTotal, users, id}) {
             talkingTo: talkingTo
         })}>
             <Col>
+                {talkingTo?.avatar === null ? 
+                <DefaultAvatar source={require("../assets/profile.jpg")} />
+                :
                 <Avatar source={{uri: talkingTo?.avatar}} />
+                }
                 <Data>
                     <Username>{talkingTo?.username}</Username>
                     <UnreadText>{unreadTotal} unread {unreadTotal ===  1 ? "Message" : "Messages"}</UnreadText>

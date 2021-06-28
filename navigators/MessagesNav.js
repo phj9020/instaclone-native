@@ -6,7 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
 
-function MessagesNav() {
+function MessagesNav({route}) {
+
+    let isDirectMessage = route?.params?.directMessage;
+
     return (
         <Stack.Navigator 
             screenOptions={{
@@ -18,13 +21,37 @@ function MessagesNav() {
                 headerBackTitleVisible: false,
             }}
             >
-            <Stack.Screen 
-                options={{
-                    headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
-                }} 
-                name="Rooms" 
-                component={Rooms} />
-            <Stack.Screen name="Room" component={Room} />
+            {isDirectMessage ? 
+                <>
+                    <Stack.Screen name="Room" options={{
+                        title: `Chat With ${route?.params?.username}`
+                    }} >
+                        {() => 
+                            <Room 
+                                talkingToUserId={route?.params?.talkingToUserId} 
+                                username={route?.params?.username} 
+                                youAndIRoomNumber= {route?.params?.youAndIRoomNumber}
+                            />
+                        }
+                    </Stack.Screen>
+                    <Stack.Screen 
+                    options={{
+                        headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
+                    }} 
+                    name="Rooms" 
+                    component={Rooms} />
+                </>
+            : 
+                <>
+                    <Stack.Screen 
+                        options={{
+                            headerBackImage: ({tintColor}) => <Ionicons name="close" color={tintColor} size={28} />,
+                        }} 
+                        name="Rooms" 
+                        component={Rooms} />
+                    <Stack.Screen name="Room" component={Room} />
+                </>
+            }
         </Stack.Navigator>
     )
 }
