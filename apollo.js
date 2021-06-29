@@ -1,9 +1,10 @@
-import { ApolloClient,InMemoryCache, makeVar, createHttpLink} from "@apollo/client";
+import { ApolloClient,InMemoryCache, makeVar, createHttpLink, split} from "@apollo/client";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setContext} from '@apollo/client/link/context';
-import {offsetLimitPagination} from "@apollo/client/utilities";
+import {getMainDefinition, offsetLimitPagination} from "@apollo/client/utilities";
 import {onError} from "@apollo/client/link/error";
 import { createUploadLink } from 'apollo-upload-client';
+import { WebSocketLink } from '@apollo/client/link/ws';
 
 export const TOKEN = "token";
 export const LOGGEDIN = "loggedIn";
@@ -23,11 +24,23 @@ export const logUserOut = async() => {
     tokenVar("");
 };
 
+// DEPRECATED: not use normal httpLink anymore, use uploadHttpLink instead
 const httpLink = createHttpLink({
     uri:'http://913452c165a3.ngrok.io/graphql'
 });
 
-// use createUploadLink
+// for websocket : subscription 
+const wsLink = new WebSocketLink({
+    uri: 'ws://913452c165a3.ngrok.io/graphql',
+    options: {
+        reconnect: true,
+        connectionParams: {
+            token: tokenVar(),
+        },
+    }
+});
+
+// use createUploadLink to upload photo
 const uploadHttpLink = createUploadLink({
     uri:'http://913452c165a3.ngrok.io/graphql'
 });
@@ -64,8 +77,24 @@ const onErrorLink = onError(({graphQLErrors, networkError}) => {
     }
 });
 
+const httpLinks = authLink.concat(onErrorLink).concat(uploadHttpLink);
+
+// choose which Link to use depends on wheter using subscription or not  
+const splitLink = split(
+    ({ query }) => {
+        const definition = getMainDefinition(query);
+        return (
+            definition.kind === 'OperationDefinition' &&
+            definition.operation === 'subscription'
+        );
+    },
+    wsLink,
+    httpLinks,
+);
+
+
 const client = new ApolloClient({
-    link: authLink.concat(onErrorLink).concat(uploadHttpLink),
+    link: splitLink,
     cache: cache,
 });
 
