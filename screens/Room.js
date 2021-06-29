@@ -5,10 +5,10 @@ import {gql, useQuery, useMutation} from '@apollo/client';
 import ScreenLayout from '../components/ScreenLayout';
 import { useForm } from 'react-hook-form';
 import useMe from '../hooks/useMe';
+import { Ionicons } from '@expo/vector-icons';
 
 
 const MessageContainer = styled.View`
-    background-color: ${props => props.theme.boxColor.backgroundColor};
     padding: 10px;
     flex-direction: ${props => props.outGoing ? "row-reverse" : "row"};
     align-items: center;
@@ -23,20 +23,32 @@ const Avatar = styled.Image`
 `
 
 const Message = styled.Text`
-    color: ${props => props.theme.boxColor.color};
+    color: white;
     border: 1px solid ${props => props.outGoing ? props.theme.accent.backgroundColor : "lightgray"};
     border-radius: 10px;
     padding: 5px 10px;
     margin: 0px 10px;
 `
+const InputContainer = styled.View`
+    width:95%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`
+
 const MessageInput = styled.TextInput`
-    width: 95%;
+    width: 85%;
     padding: 10px 20px;
     border: 1px ${props => props.theme.accent.backgroundColor};
     border-radius: 1000px;
     margin-top: 10px;
     margin-bottom: 20px;
     color: white;
+    margin-right: 20px;
+`
+const SendButton = styled.TouchableOpacity`
+    position: relative;
+    top: -5px;
 `
 
 const SEE_ROOM_QUERY = gql`
@@ -206,6 +218,10 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
             </Message>
         </MessageContainer>
     )
+    
+    // if data seeroom message 가 있다면 그걸 배열에 펼치고 , 없다면 빈배열을 준다 
+    const messages = [...(data?.seeRoom?.messages ?? [])]
+    messages.reverse();
 
     return (
         <KeyboardAvoidingView
@@ -215,21 +231,26 @@ function Room({navigation, route, youAndIRoomNumber, talkingToUserId, username})
         >
             <ScreenLayout loading={loading}>
                 <FlatList
-                    // inverted
+                    inverted
                     style={{width: "100%"}} 
-                    data={data?.seeRoom?.messages}
+                    data={messages}
                     keyExtractor={item => "" + item.id}
                     renderItem={renderItem}
                 />
-                <MessageInput
-                    onChangeText={(text) => setValue("payload", text)}
-                    placeholderTextColor="white"
-                    placeholder="Write a Message..."
-                    returnKeyLabel="Send Message"
-                    returnkeyType="send"
-                    value={watch("payload")}
-                    onSubmitEditing={handleSubmit(onValid)}
-                />
+                <InputContainer>
+                    <MessageInput
+                        onChangeText={(text) => setValue("payload", text)}
+                        placeholderTextColor="white"
+                        placeholder="Write a Message..."
+                        returnKeyLabel="Send Message"
+                        returnkeyType="send"
+                        value={watch("payload")}
+                        onSubmitEditing={handleSubmit(onValid)}
+                    />
+                    <SendButton onPress={handleSubmit(onValid)} disabled={!Boolean(watch("payload"))}>
+                        <Ionicons name="send" color={!Boolean(watch("payload")) ? "lightgray" : "white"} size={22} />
+                    </SendButton>
+                </InputContainer>
             </ScreenLayout>
         </KeyboardAvoidingView>
     )
