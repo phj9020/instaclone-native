@@ -34,9 +34,10 @@ const wsLink = new WebSocketLink({
     uri: 'ws://913452c165a3.ngrok.io/graphql',
     options: {
         reconnect: true,
-        connectionParams: {
+        // make connectionParams to function to get called by request or connection
+        connectionParams: ()=> ({
             token: tokenVar(),
-        },
+        }),
     }
 });
 
