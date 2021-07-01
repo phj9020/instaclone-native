@@ -31,7 +31,8 @@ const httpLink = createHttpLink({
 
 // for websocket : subscription 
 const wsLink = new WebSocketLink({
-    uri: 'ws://913452c165a3.ngrok.io/graphql',
+    uri: process.env.NODE_ENV === 'production' ? 
+    'ws://phj9020-instaclone-backend.herokuapp.com/graphql':'ws://f7bccd6338e3.ngrok.io/graphql',
     options: {
         reconnect: true,
         // make connectionParams to function to get called by request or connection
@@ -43,7 +44,8 @@ const wsLink = new WebSocketLink({
 
 // use createUploadLink to upload photo
 const uploadHttpLink = createUploadLink({
-    uri:'http://913452c165a3.ngrok.io/graphql'
+    uri: process.env.NODE_ENV === 'production' ? 
+    'https://phj9020-instaclone-backend.herokuapp.com/graphql':'http://f7bccd6338e3.ngrok.io/graphql',
 });
 
 // token을 헤더에 더하기 위해 

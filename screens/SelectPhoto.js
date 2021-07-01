@@ -51,13 +51,16 @@ function SelectPhoto({navigation}) {
     };
     
     const getPermission = async() => {
-        const {accessPrivileges, canAskAgain}= await MediaLibrary.getPermissionsAsync();
-        if(accessPrivileges === "none" && canAskAgain) {
-            const {accessPrivileges} = await MediaLibrary.requestPermissionsAsync();
-            if(accessPrivileges !== "none") {
+        const {status, canAskAgain}= await MediaLibrary.getPermissionsAsync();
+        console.log(status);
+        if(status === "denied" && canAskAgain) {
+            const {status} = await MediaLibrary.requestPermissionsAsync();
+            console.log(status);
+            if(status !== "denied") {
                 setOk(true);
             };
-        } else if(accessPrivileges !== "none") {
+        } 
+        else if(status !== "denied") {
             setOk(true);
         }
     };
